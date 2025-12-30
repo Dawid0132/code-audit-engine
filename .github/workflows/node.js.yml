@@ -6,8 +6,12 @@ name: Node.js CI
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'code-audit-engine-frontend/**'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'code-audit-engine-frontend/**'
 
 jobs:
   build:
