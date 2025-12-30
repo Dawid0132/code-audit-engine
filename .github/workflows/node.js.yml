@@ -29,15 +29,19 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Install dependencies
+      working-directory: code-audit-engine-frontend
       run: npm install
 
     - name: Run the tests
+      working-directory: code-audit-engine-frontend
       run: npm test
 
     - name: Build
+      working-directory: code-audit-engine-frontend
       run: npm run build
 
     - name: Deploy
+      working-directory: code-audit-engine-frontend
       run: |
         git config --global user.name $user_name
         git config --global user.email $user_email
