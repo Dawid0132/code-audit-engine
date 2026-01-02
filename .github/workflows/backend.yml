@@ -64,8 +64,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Give execute permission to mvnw
-        run: chmod +x mvnw
       - name: Run tests
         run: ./mvnw clean test
       - name: Upload test report
@@ -98,8 +96,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Give execute permission to mvnw
-        run: chmod +x mvnw
       - name: Build project
         run: ./mvnw clean package
 
