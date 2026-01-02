@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: GithubConnector
+
+server:
+  port: ${SERVER_PORT:8080}
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
