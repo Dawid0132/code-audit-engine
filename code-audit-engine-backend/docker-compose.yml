@@ -1,0 +1,44 @@
+services:
+  github-connector:
+    image: ${DOCKERHUB_USERNAME}/github-connector:latest
+    command: [ "java", "-jar", "app.jar" ]
+    ports:
+      - "8080:8080"
+    container_name: github-connector
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8080
+      LOG_LEVEL: INFO
+    networks:
+      - codeaudit-net
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  github-connector-service:
+    image: ${DOCKERHUB_USERNAME}/github-connector-service:latest
+    command: [ "java", "-jar", "app.jar" ]
+    ports:
+      - "8081:8081"
+    container_name: github-connector-service
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8081
+      LOG_LEVEL: INFO
+      CONNECTOR_URL: http://github-connector:8080
+    networks:
+      - codeaudit-net
+    depends_on:
+      github-connector:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+networks:
+  codeaudit-net:
+    driver: bridge

@@ -1,0 +1,147 @@
+name: spring boot and docker CI CD pipeline
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'code-audit-engine-backend/**'
+
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'code-audit-engine-backend/**'
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./code-audit-engine-backend
+    name: Compile project
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+      - name: Compile project
+        run: ./mvnw clean compile
+
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./code-audit-engine-backend
+    name: Test app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+      - name: Run tests
+        run: ./mvnw clean test
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: target/surefire-reports
+
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./code-audit-engine-backend
+    name: Build app
+    needs: [ compile,test ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+      - name: Build project
+        run: ./mvnw clean package
+
+  build-docker-image:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./code-audit-engine-backend
+    name: Build docker image
+    needs: [ build ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+      - name: Give execute permission to mvnw
+        run: chmod +x mvnw
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build & Push GithubConnector
+        uses: docker/build-push-action@v6
+        with:
+          context: ./code-audit-engine-backend
+          target: github-connector
+          push: 'true'
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/github-connector:latest
+      - name: Build & Push GithubConnectorService
+        uses: docker/build-push-action@v6
+        with:
+          context: ./code-audit-engine-backend
+          target: github-connector-service
+          push: 'true'
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/github-connector-service:latest
