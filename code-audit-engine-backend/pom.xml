@@ -21,6 +21,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>GithubConnector</module>
         <module>GithubConnectorService</module>
     </modules>
 
