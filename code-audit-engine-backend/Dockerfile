@@ -15,7 +15,7 @@ COPY . .
 
 RUN mvn -B -e clean install -DskipTests
 
-FROM eclipse-temurin:21-jdk as github-conector
+FROM eclipse-temurin:21-jdk as github-connector
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ EXPOSE 8080
 
 ENTRYPOINT ["java","-jar","app.jar"]
 
-FROM eclipse-temurin:21-jdk as github-conector-service
+FROM eclipse-temurin:21-jdk as github-connector-service
 
 WORKDIR /app
 
