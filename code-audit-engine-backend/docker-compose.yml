@@ -1,18 +1,44 @@
 services:
+  traefik:
+    image: traefik:v3.0
+    container_name: treafik
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=s24965@pjwstk.edu.pl"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    restart: unless-stopped
+
   github-connector:
     image: ${DOCKERHUB_USERNAME}/github-connector:latest
     command: [ "java", "-jar", "app.jar" ]
     ports:
-      - "8080:8080"
+      - "8081:8081"
     container_name: github-connector
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.githubconnector.rule=Host(`code-audit-engine.eu`) && PathPrefix(`/github-connector`)"
+      - "traefik.http.routers.githubconnector.entrypoints=websecure"
+      - "traefik.http.routers.githubconnector.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.githubconnector-strip.stripprefix.prefixes=/github-connector"
+      - "traefik.http.routers.githubconnector.middlewares=githubconnector-strip"
     restart: unless-stopped
     environment:
-      SERVER_PORT: 8080
+      SERVER_PORT: 8081
       LOG_LEVEL: INFO
     networks:
       - codeaudit-net
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -21,20 +47,27 @@ services:
     image: ${DOCKERHUB_USERNAME}/github-connector-service:latest
     command: [ "java", "-jar", "app.jar" ]
     ports:
-      - "8081:8081"
+      - "8082:8082"
     container_name: github-connector-service
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.githubservice.rule=Host(`code-audit-engine.eu`) && PathPrefix(`/github-connector-service`)"
+      - "traefik.http.routers.githubservice.entrypoints=websecure"
+      - "traefik.http.routers.githubservice.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.githubservice-strip.stripprefix.prefixes=/github-connector-service"
+      - "traefik.http.routers.githubservice.middlewares=githubservice-strip"
     restart: unless-stopped
     environment:
-      SERVER_PORT: 8081
+      SERVER_PORT: 8082
       LOG_LEVEL: INFO
-      CONNECTOR_URL: http://github-connector:8080
+      CONNECTOR_URL: http://github-connector:8081
     networks:
       - codeaudit-net
     depends_on:
       github-connector:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8082/actuator/health" ]
       interval: 15s
       timeout: 5s
       retries: 5
