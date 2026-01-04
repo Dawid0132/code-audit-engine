@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .container {
+        text-align: center;
+        background: white;
+        padding: 50px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    .btn {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 15px 30px;
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background 0.3s;
+    }
+
+    .btn:hover {
+        background: #764ba2;
+    }
+</style>
+<body>
+<div class="container">
+    <h1>Welcome to Code Audit Engine</h1>
+    <p>Please login to continue</p>
+    <a href="/oauth2/authorization/keycloak" class="btn">Login with Keycloak</a>
+</div>
+</body>
+</html>
