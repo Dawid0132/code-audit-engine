@@ -15,7 +15,7 @@ WORKDIR /app
 COPY --from=dependencies /root/.m2 /root/.m2
 COPY . .
 
-RUN mvn -B -e clean install -DskipTests
+RUN mvn -B -e clean install
 
 FROM eclipse-temurin:21-jdk as client
 
