@@ -1,9 +1,9 @@
 spring:
   application:
-    name: GithubConnector
+    name: Gateway
 
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${SERVER_PORT:8080}
 
 management:
   endpoint:

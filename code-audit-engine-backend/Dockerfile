@@ -2,6 +2,8 @@ FROM maven:3.9.4-eclipse-temurin-21 AS dependencies
 
 WORKDIR /app
 COPY pom.xml .
+COPY CodeAuditEngineClient/pom.xml CodeAuditEngineClient/pom.xml
+COPY Gateway/pom.xml Gateway/pom.xml
 COPY GithubConnector/pom.xml GithubConnector/pom.xml
 COPY GithubConnectorService/pom.xml GithubConnectorService/pom.xml
 
@@ -15,6 +17,30 @@ COPY . .
 
 RUN mvn -B -e clean install -DskipTests
 
+FROM eclipse-temurin:21-jdk as client
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl
+
+COPY --from=builder /app/CodeAuditEngineClient/target/*.jar app.jar
+
+EXPOSE 8090
+
+ENTRYPOINT ["java","-jar","app.jar"]
+
+FROM eclipse-temurin:21-jdk as gateway
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl
+
+COPY --from=builder /app/Gateway/target/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java","-jar","app.jar"]
+
 FROM eclipse-temurin:21-jdk as github-connector
 
 WORKDIR /app
@@ -23,7 +49,7 @@ RUN apt-get update && apt-get install -y curl
 
 COPY --from=builder /app/GithubConnector/target/*.jar app.jar
 
-EXPOSE 8080
+EXPOSE 8081
 
 ENTRYPOINT ["java","-jar","app.jar"]
 
@@ -35,6 +61,6 @@ RUN apt-get update && apt-get install -y curl
 
 COPY --from=builder /app/GithubConnectorService/target/*.jar app.jar
 
-EXPOSE 8081
+EXPOSE 8082
 
 ENTRYPOINT ["java","-jar","app.jar"]

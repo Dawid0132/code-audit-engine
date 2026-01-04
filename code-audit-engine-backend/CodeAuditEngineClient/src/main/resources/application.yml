@@ -1,9 +1,9 @@
 spring:
   application:
-    name: GithubConnector
+    name: CodeAuditEngineClient
 
 server:
-  port: ${SERVER_PORT:8081}
+  port: ${SERVER_PORT:8090}
 
 management:
   endpoint:

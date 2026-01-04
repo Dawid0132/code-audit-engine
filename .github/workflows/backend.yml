@@ -129,14 +129,22 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Build & Push GithubConnector
+      - name: Build & Push Client
         uses: docker/build-push-action@v6
         with:
           context: ./code-audit-engine-backend
-          target: github-connector
+          target: client
           push: 'true'
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/github-connector:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/client:latest
+      - name: Build & Push Gateway
+        uses: docker/build-push-action@v6
+        with:
+          context: ./code-audit-engine-backend
+          target: gateway
+          push: 'true'
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/gateway:latest
       - name: Build & Push GithubConnectorService
         uses: docker/build-push-action@v6
         with:
@@ -145,3 +153,11 @@ jobs:
           push: 'true'
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/github-connector-service:latest
+      - name: Build & Push GithubConnector
+        uses: docker/build-push-action@v6
+        with:
+          context: ./code-audit-engine-backend
+          target: github-connector
+          push: 'true'
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/github-connector:latest
