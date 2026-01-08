@@ -15,7 +15,7 @@ WORKDIR /app
 COPY --from=dependencies /root/.m2 /root/.m2
 COPY . .
 
-RUN mvn -B -e clean install
+RUN mvn -B -e clean package -DskipTests
 
 FROM eclipse-temurin:21-jdk as client
 
@@ -64,3 +64,11 @@ COPY --from=builder /app/GithubConnectorService/target/*.jar app.jar
 EXPOSE 8082
 
 ENTRYPOINT ["java","-jar","app.jar"]
+
+FROM quay.io/keycloak/keycloak:26.0.0 as keycloak-code-audit-engine
+
+COPY realm-template.json /opt/keycloak/data/import/
+
+EXPOSE 8080
+
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm"]

@@ -1,0 +1,125 @@
+{
+  "realm": "code-audit-engine",
+  "enabled": true,
+  "displayName": "Code Audit Engine",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": false,
+  "accessTokenLifespan": 300,
+  "sslRequired": "none",
+  "roles": {
+    "realm": [
+      {
+        "name": "USER",
+        "description": "Standard user role"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "testuser",
+      "email": "testuser@example.com",
+      "firstName": "Test",
+      "lastName": "User",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "USER"
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "gateway-client",
+      "rootUrl": "http://localhost:8080",
+      "adminUrl": "http://localhost:8080",
+      "baseUrl": "http://localhost:8080",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${GATEWAY_CLIENT_SECRET}",
+      "redirectUris": [
+        "http://localhost:8080/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8080"
+      ],
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true,
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:8080/*"
+      }
+    },
+    {
+      "clientId": "thymeleaf-client",
+      "rootUrl": "http://localhost:8090",
+      "adminUrl": "http://localhost:8090",
+      "baseUrl": "http://localhost:8090",
+      "enabled": true,
+      "redirectUris": [
+        "http://localhost:8090/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8090"
+      ],
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "fullScopeAllowed": true,
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:8090/*"
+      }
+    }
+  ],
+  "identityProviders": [
+    {
+      "alias": "github",
+      "displayName": "GitHub",
+      "providerId": "github",
+      "enabled": true,
+      "updateProfileFirstLoginMode": "on",
+      "trustEmail": true,
+      "storeToken": true,
+      "addReadTokenRoleOnCreate": false,
+      "authenticateByDefault": false,
+      "linkOnly": false,
+      "hideOnLogin": false,
+      "firstBrokerLoginFlowAlias": "first broker login",
+      "config": {
+        "acceptsPromptNoneForwardFromClient": "false",
+        "clientId": "${GITHUB_CLIENT_ID}",
+        "disableUserInfo": "false",
+        "filteredByClaim": "false",
+        "syncMode": "LEGACY",
+        "clientSecret": "${GITHUB_CLIENT_SECRET}",
+        "caseSensitiveOriginalUsername": "false"
+      }
+    }
+  ],
+  "identityProviderMappers": [
+    {
+      "name": "github-username",
+      "identityProviderAlias": "github",
+      "identityProviderMapper": "github-user-attribute-mapper",
+      "config": {
+        "syncMode": "INHERIT",
+        "userAttribute": "githubUsername",
+        "jsonField": "login"
+      }
+    }
+  ]
+}

@@ -48,6 +48,7 @@ jobs:
     defaults:
       run:
         working-directory: ./code-audit-engine-backend
+
     name: Test app
     steps:
       - name: Checkout code
@@ -73,6 +74,8 @@ jobs:
         run: chmod +x mvnw
 
       - name: Run tests
+        env:
+          KEYCLOAK_SECRET: ${{ secrets.KEYCLOAK_SECRET }}
         run: ./mvnw clean test
 
       - name: Upload test reports
@@ -148,6 +151,15 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push Keycloak
+        uses: docker/build-push-action@v6
+        with:
+          context: ./code-audit-engine-backend
+          target: keycloak-code-audit-engine
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/keycloak-code-audit-engine:latest
 
       - name: Build & Push Client
         uses: docker/build-push-action@v6

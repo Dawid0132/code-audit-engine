@@ -1,14 +1,18 @@
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: client
+    image: ${DOCKERHUB_USERNAME}/keycloak-code-audit-engine:latest
     command: start-dev
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak_db:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: keycloak
+      KC_DB_URL: jdbc:postgresql://keycloak_db:5432/${DB_NAME}
+      KC_DB_USERNAME: ${DB_USERNAME}
+      KC_DB_PASSWORD: ${DB_PASSWORD}
       KC_HOSTNAME_STRICT: false
       KC_HTTP_ENABLED: true
     ports:
@@ -28,9 +32,9 @@ services:
   keycloak_db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - keycloak_data:/var/lib/postgresql/data
     networks:
@@ -57,6 +61,9 @@ services:
       - "8090:8090"
     networks:
       - codeaudit-net
+    depends_on:
+      keycloak:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD","curl","-f","http://localhost:8090/actuator/health" ]
       interval: 15s
@@ -75,6 +82,7 @@ services:
     environment:
       SERVER_PORT: 8080
       LOG_LEVEL: INFO
+      KEYCLOAK_SECRET: ${KEYCLOAK_SECRET}
     ports:
       - "8080:8080"
     networks:
