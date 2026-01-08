@@ -7,13 +7,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-@Import(TestSecurityConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class CodeAuditEngineClientApplicationTests {
-
-    @MockBean
-    ClientRegistrationRepository clientRegistrationRepository;
 
     @Test
     void contextLoads() {

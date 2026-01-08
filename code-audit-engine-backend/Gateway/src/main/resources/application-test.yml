@@ -1,13 +1,31 @@
 spring:
+  application:
+    name: Gateway
+  cloud:
+    gateway:
+      routes: []
+    compatibility-verifier:
+      enabled: false
   security:
     oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: test-client
+            client-secret: test-secret
+            scope: openid
+            authorization-grant-type: authorization_code
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:9999/realms/test
+            authorization-uri: http://localhost:9999/auth
+            token-uri: http://localhost:9999/token
+            user-info-uri: http://localhost:9999/userinfo
+            jwk-set-uri: http://localhost:9999/jwks
       resourceserver:
         jwt:
-          jwk-set-uri: http://mock/jwks
-      client:
-        registration: {}
-        provider: {}
+          issuer-uri: http://localhost:9999/realms/test
+          jwk-set-uri: http://localhost:9999/jwks
 
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+server:
+  port: 0
