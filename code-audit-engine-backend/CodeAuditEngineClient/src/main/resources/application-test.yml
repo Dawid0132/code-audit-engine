@@ -1,24 +1,6 @@
 spring:
-  application:
-    name: CodeAuditEngineClient
   security:
     oauth2:
       client:
-        registration:
-          keycloak:
-            client-id: test-client
-            client-secret: test-secret
-            scope: openid
-            authorization-grant-type: authorization_code
-        provider:
-          keycloak:
-            issuer-uri: http://localhost:9999/realms/test
-            authorization-uri: http://localhost:9999/auth
-            token-uri: http://localhost:9999/token
-            user-info-uri: http://localhost:9999/userinfo
-            jwk-set-uri: http://localhost:9999/jwks
-
-server:
-  port: 0
-
-spring.security.oauth2.client.provider.keycloak.issuer-uri: ""
+        registration: {}
+        provider: {}
