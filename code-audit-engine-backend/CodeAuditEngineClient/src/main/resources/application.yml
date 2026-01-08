@@ -1,19 +1,8 @@
 spring:
   application:
     name: CodeAuditEngineClient
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: thymeleaf-client
-            scope:
-              - openid
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-        provider:
-          keycloak:
-            issuer-uri: http://localhost:8091/realms/code-audit-engine
+  profiles:
+    active: dev
 
 server:
   port: ${SERVER_PORT:8090}
@@ -30,3 +19,37 @@ management:
 logging:
   level:
     root: ${LOG_LEVEL:INFO}
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+keycloak:
+  enabled: false
+
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: keycloak
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: thymeleaf-client
+            scope:
+              - openid
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8091/realms/code-audit-engine
+
+keycloak:
+  enabled: true

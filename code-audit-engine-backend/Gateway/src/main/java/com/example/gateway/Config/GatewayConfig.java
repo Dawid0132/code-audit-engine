@@ -1,7 +1,10 @@
-package com.example.gateway;
+package com.example.gateway.Config;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -16,7 +19,9 @@ import java.util.List;
 
 @Configuration
 @EnableWebFluxSecurity
-public class Config {
+@Profile("keycloak")
+@ConditionalOnProperty(name = "keycloak.enabled", havingValue = "true")
+public class GatewayConfig {
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity httpSecurity) {
@@ -29,12 +34,9 @@ public class Config {
                                 .pathMatchers("/actuator/**").permitAll()
                                 .pathMatchers("/login/**", "/oauth2/**").permitAll()
                                 .anyExchange().authenticated())
-                .oauth2Login(oAuth2LoginSpec -> {
-                })
+                .oauth2Login(Customizer.withDefaults())
                 .logout(logoutSpec -> logoutSpec.logoutSuccessHandler(oidcLogoutSuccessHandler()))
-                .oauth2ResourceServer(oAuth2ResourceServerSpec ->
-                        oAuth2ResourceServerSpec.jwt(jwtSpec -> {
-                        }))
+                .oauth2ResourceServer(Customizer.withDefaults())
                 .build();
     }
 
